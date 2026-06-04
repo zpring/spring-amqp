@@ -133,6 +133,18 @@ allprojects {
 		if (version.endsWith('-SNAPSHOT')) {
 			maven { url 'https://repo.spring.io/snapshot' }
 		}
+		if (System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL") != null) {
+			repositories {
+				maven {
+					name = "Release Train"
+					url = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL")
+					credentials {
+						username = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_USERNAME")
+						password = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_PASSWORD")
+					}
+				}
+			}
+		}
 //		maven { url 'https://repo.spring.io/libs-staging-local' }
 	}
 }
@@ -228,6 +240,14 @@ configure(javaProjects) { subproject ->
 			mavenJava(MavenPublication) {
 				suppressAllPomMetadataWarnings()
 				from components.java
+			}
+		}
+		if (project.hasProperty("deploymentRepository")) {
+			repositories {
+				maven {
+					name = 'Deployment'
+					url = project.property("deploymentRepository")
+				}
 			}
 		}
 	}
@@ -367,6 +387,14 @@ project('spring-amqp-bom') {
 		publications {
 			mavenJava(MavenPublication) {
 				from components.javaPlatform
+			}
+		}
+		if (project.hasProperty("deploymentRepository")) {
+			repositories {
+				maven {
+					name = 'Deployment'
+					url = project.property("deploymentRepository")
+				}
 			}
 		}
 	}
@@ -689,6 +717,14 @@ publishing {
 			artifact docsZip
 			artifact schemaZip
 			artifact distZip
+		}
+	}
+	if (project.hasProperty("deploymentRepository")) {
+		repositories {
+			maven {
+				name = 'Deployment'
+				url = project.property("deploymentRepository")
+			}
 		}
 	}
 }
